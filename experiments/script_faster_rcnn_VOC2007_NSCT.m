@@ -40,8 +40,8 @@ dataset                     = Dataset.voc2007_test(dataset, 'test', false);
 conf_proposal               = proposal_config('feat_stride', model.feat_stride);
 conf_fast_rcnn              = fast_rcnn_config();
 % set cache folder for each stage
-model                       = Faster_RCNN_Train.set_cache_folder_NSCT(cache_base_proposal, cache_base_fast_rcnn, model);
-% generate anchors and pre-calculate output size of rpn network 
+model                       = Faster_RCNN_Train.set_cache_folder(cache_base_proposal, cache_base_fast_rcnn, model, true);
+% generate anchors and pre-calculate output size of rpn network
 [conf_proposal.anchors, conf_proposal.output_width_map, conf_proposal.output_height_map] ...
                             = proposal_prepare_anchors(conf_proposal, model.rpn.cache_name, model.rpn.test_net_def_file);
 

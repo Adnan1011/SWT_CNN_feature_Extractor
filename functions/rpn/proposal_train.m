@@ -12,6 +12,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     ip.addRequired('imdb_train',                                @iscell);
     ip.addRequired('roidb_train',                               @iscell);
     ip.addParamValue('do_val',              false,              @isscalar);
+    ip.addParamValue('NSCT_Flag',           false,              @isscalar);
     ip.addParamValue('imdb_val',            struct(),           @isstruct);
     ip.addParamValue('roidb_val',           struct(),           @isstruct);
     
@@ -26,7 +27,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     ip.addParamValue('net_file',            fullfile(pwd, 'proposal_models', 'Zeiler_conv5', 'Zeiler_conv5.caffemodel'), ...
                                                         @isstr);
     ip.addParamValue('cache_name',          'Zeiler_conv5', ...
-                                                        @isstr);
+                                                        @isstr);    
     
     ip.parse(conf, imdb_train, roidb_train, varargin{:});
     opts = ip.Results;
@@ -47,7 +48,9 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     caffe_log_file_base = fullfile(cache_dir, 'caffe_log');
     caffe.init_log(caffe_log_file_base);
     caffe_solver = caffe.Solver(opts.solver_def_file);
-    caffe_solver.net.copy_from(opts.net_file);
+    if ~(opts.NSCT_Flag)
+        caffe_solver.net.copy_from(opts.net_file);
+    end
     
     % init log
     timestamp = datestr(datevec(now()), 'yyyymmdd_HHMMSS');

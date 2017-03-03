@@ -48,7 +48,7 @@ model                       = Faster_RCNN_Train.set_cache_folder(cache_base_prop
 %%  Phase 1 proposal
 fprintf('\n***************\nPhase 1: Proposal \n***************\n');
 % train
-model.rpn            = Faster_RCNN_Train.do_proposal_train(conf_proposal, dataset, model.rpn, opts.do_val);
+model.rpn            = Faster_RCNN_Train.do_proposal_train(conf_proposal, dataset, model.rpn, opts.do_val, true);
 % test
 dataset.roidb_train  = cellfun(@(x, y) Faster_RCNN_Train.do_proposal_test(conf_proposal, model.rpn, x, y), dataset.imdb_train, dataset.roidb_train, 'UniformOutput', false);
 dataset.roidb_test   = Faster_RCNN_Train.do_proposal_test(conf_proposal, model.rpn, dataset.imdb_test, dataset.roidb_test);

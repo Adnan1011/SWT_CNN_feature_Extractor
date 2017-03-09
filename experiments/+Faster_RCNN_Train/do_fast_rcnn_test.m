@@ -1,11 +1,18 @@
-function mAP = do_fast_rcnn_test(conf, model_stage, imdb, roidb, ignore_cache)
+function mAP = do_fast_rcnn_test(conf, model_stage, imdb, roidb, ignore_cache, ...
+                                 HC_Feats_Flag)
     if ~exist('ignore_cache', 'var')
         ignore_cache            = false;
+    end
+    
+    use_HC_Feats = false;
+    if exist('HC_Feats_Flag', 'var')
+        use_HC_Feats = true;
     end
 
     mAP                         = fast_rcnn_test(conf, imdb, roidb, ...
                                     'net_def_file',     model_stage.test_net_def_file, ...
                                     'net_file',         model_stage.output_model_file, ...
                                     'cache_name',       model_stage.cache_name, ...
-                                    'ignore_cache',     ignore_cache);
+                                    'ignore_cache',     ignore_cache, ...
+                                    'use_HC_Feats',     use_HC_Feats);
 end

@@ -1,7 +1,13 @@
-function model_stage = do_fast_rcnn_train(conf, dataset, model_stage, do_val)
+function model_stage = do_fast_rcnn_train(conf, dataset, model_stage, do_val, ...
+                                          HC_Feats_Flag)
     if ~do_val
         dataset.imdb_test = struct();
         dataset.roidb_test = struct();
+    end
+    
+    use_HC_Feats = false;
+    if exist('HC_Feats_Flag', 'var')
+        use_HC_Feats = true;
     end
 
     model_stage.output_model_file = fast_rcnn_train(conf, dataset.imdb_train, dataset.roidb_train, ...
@@ -10,5 +16,6 @@ function model_stage = do_fast_rcnn_train(conf, dataset, model_stage, do_val)
                                     'roidb_val',        dataset.roidb_test, ...
                                     'solver_def_file',  model_stage.solver_def_file, ...
                                     'net_file',         model_stage.init_net_file, ...
-                                    'cache_name',       model_stage.cache_name);
+                                    'cache_name',       model_stage.cache_name, ...
+                                    'use_HC_Feats',     use_HC_Feats);
 end

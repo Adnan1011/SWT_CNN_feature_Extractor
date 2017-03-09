@@ -17,6 +17,7 @@ function mAP = fast_rcnn_test(conf, imdb, roidb, varargin)
     ip.addParamValue('cache_name',      '', 			@isstr);                                         
     ip.addParamValue('suffix',          '',             @isstr);
     ip.addParamValue('ignore_cache',    false,          @islogical);
+    ip.addParamValue('use_HC_Feats',    false,          @isscalar);
     
     ip.parse(conf, imdb, roidb, varargin{:});
     opts = ip.Results;
@@ -96,9 +97,13 @@ function mAP = fast_rcnn_test(conf, imdb, roidb, varargin)
             fprintf('%s: test (%s) %d/%d ', procid(), imdb.name, count, num_images);
             th = tic;
             d = roidb.rois(i);
-            im = imread(imdb.image_at(i));
+            if opts.use_HC_Feats
+                im = GenerateFeatures(imdb.image_at(i));
+            else
+                im = imread(imdb.image_at(i));
+            end
 
-            [boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, d.boxes, max_rois_num_in_gpu);
+            [boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, d.boxes, max_rois_num_in_gpu, opts.use_HC_Feats);
 
             for j = 1:num_classes
                 inds = find(~d.gt & scores(:, j) > thresh(j));

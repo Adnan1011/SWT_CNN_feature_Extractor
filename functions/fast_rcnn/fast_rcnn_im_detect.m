@@ -1,4 +1,4 @@
-function [pred_boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, boxes, max_rois_num_in_gpu)
+function [pred_boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, boxes, max_rois_num_in_gpu, use_HC_Feats)
 % [pred_boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, boxes, max_rois_num_in_gpu)
 % --------------------------------------------------------
 % Fast R-CNN
@@ -7,7 +7,7 @@ function [pred_boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, boxes, 
 % Licensed under The MIT License [see LICENSE for details]
 % --------------------------------------------------------
 
-    [im_blob, rois_blob, ~] = get_blobs(conf, im, boxes);
+    [im_blob, rois_blob, ~] = get_blobs(conf, im, boxes, use_HC_Feats);
     
     % When mapping from image ROIs to feature map ROIs, there's some aliasing
     % (some distinct image ROIs get mapped to the same feature ROI).
@@ -18,7 +18,9 @@ function [pred_boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, boxes, 
     boxes = boxes(index, :);
     
     % permute data into caffe c++ memory, thus [num, channels, height, width]
-    im_blob = im_blob(:, :, [3, 2, 1], :); % from rgb to brg
+    if ~use_HC_Feats
+        im_blob = im_blob(:, :, [3, 2, 1], :); % from rgb to bgr
+    end
     im_blob = permute(im_blob, [2, 1, 3, 4]);
     im_blob = single(im_blob);
     rois_blob = rois_blob - 1; % to c's index (start from 0)
@@ -75,13 +77,13 @@ function [pred_boxes, scores] = fast_rcnn_im_detect(conf, caffe_net, im, boxes, 
     scores = scores(:, 2:end);
 end
 
-function [data_blob, rois_blob, im_scale_factors] = get_blobs(conf, im, rois)
-    [data_blob, im_scale_factors] = get_image_blob(conf, im);
+function [data_blob, rois_blob, im_scale_factors] = get_blobs(conf, im, rois, use_HC_Feats)
+    [data_blob, im_scale_factors] = get_image_blob(conf, im, use_HC_Feats);
     rois_blob = get_rois_blob(conf, rois, im_scale_factors);
 end
 
-function [blob, im_scales] = get_image_blob(conf, im)
-    [ims, im_scales] = arrayfun(@(x) prep_im_for_blob(im, conf.image_means, x, conf.test_max_size), conf.test_scales, 'UniformOutput', false);
+function [blob, im_scales] = get_image_blob(conf, im, use_HC_Feats)
+    [ims, im_scales] = arrayfun(@(x) prep_im_for_blob(im, conf.image_means, x, conf.test_max_size, use_HC_Feats), conf.test_scales, 'UniformOutput', false);
     im_scales = cell2mat(im_scales);
     blob = im_list_to_blob(ims);    
 end

@@ -13,6 +13,7 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
     ip.addRequired('imdb_train',                        @iscell);
     ip.addRequired('roidb_train',                       @iscell);
     ip.addParamValue('do_val',          false,          @isscalar);
+    ip.addParamValue('use_HC_Feats',    false,          @isscalar);
     ip.addParamValue('imdb_val',        struct(),       @isstruct);
     ip.addParamValue('roidb_val',       struct(),       @isstruct);
     ip.addParamValue('val_iters',       500,            @isscalar); 
@@ -43,7 +44,9 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
     caffe_log_file_base = fullfile(cache_dir, 'caffe_log');
     caffe.init_log(caffe_log_file_base);
     caffe_solver = caffe.Solver(opts.solver_def_file);
-    caffe_solver.net.copy_from(opts.net_file);
+    if ~opts.use_HC_Feats
+        caffe_solver.net.copy_from(opts.net_file);
+    end
 
     % init log
     timestamp = datestr(datevec(now()), 'yyyymmdd_HHMMSS');
@@ -101,7 +104,7 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
         % generate minibatch training data
         [shuffled_inds, sub_db_inds] = generate_random_minibatch(shuffled_inds, image_roidb_train, conf.ims_per_batch);
         [im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_weights_blob] = ...
-            fast_rcnn_get_minibatch(conf, image_roidb_train(sub_db_inds));
+            fast_rcnn_get_minibatch(conf, image_roidb_train(sub_db_inds), opts.use_HC_Feats);
 
         net_inputs = {im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_weights_blob};
         caffe_solver.net.reshape_as_input(net_inputs);
@@ -120,7 +123,7 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
                 for i = 1:length(shuffled_inds_val)
                     sub_db_inds = shuffled_inds_val{i};
                     [im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_weights_blob] = ...
-                        fast_rcnn_get_minibatch(conf, image_roidb_val(sub_db_inds));
+                        fast_rcnn_get_minibatch(conf, image_roidb_val(sub_db_inds), opts.use_HC_Feats);
 
                     % Reshape net's input blobs
                     net_inputs = {im_blob, rois_blob, labels_blob, bbox_targets_blob, bbox_loss_weights_blob};

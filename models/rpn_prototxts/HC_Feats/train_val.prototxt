@@ -1,4 +1,4 @@
-name: "NSCT"
+name: "HC_Feats"
 
 input: "raw_features"
 input_dim: 1

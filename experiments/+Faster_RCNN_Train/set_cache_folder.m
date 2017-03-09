@@ -1,5 +1,5 @@
 function model = set_cache_folder(cache_base_proposal, cache_base_fast_rcnn,...
-                                  model, NSCT_Flag)
+                                  model, HC_Feats_Flag)
 % model = set_cache_folder(cache_base_proposal, cache_base_fast_rcnn, model)
 % --------------------------------------------------------
 % Faster R-CNN
@@ -11,7 +11,7 @@ function model = set_cache_folder(cache_base_proposal, cache_base_fast_rcnn,...
 % Georgia Tech
 % --------------------------------------------------------
 
-if ~exist('NSCT_Flag', 'var')
+if ~exist('HC_Feats_Flag', 'var')
     model.stage1_rpn.cache_name = [cache_base_proposal, '_stage1_rpn'];
 
     model.stage1_fast_rcnn.cache_name = ...

@@ -1,7 +1,7 @@
-function script_faster_rcnn_VOC2007_NSCT()
-% script_faster_rcnn_VOC2007_NSCT()
-% Faster rcnn training and testing with Non Subsampled Contourlet Transform
-% as a feature extractor
+function script_faster_rcnn_VOC2007_HC_Feats()
+% script_faster_rcnn_VOC2007_HC_Feats()
+% Faster rcnn training and testing using sophisticated trasnforms like
+% Non-subsampled contourlet transform as feature extractors
 % --------------------------------------------------------
 % Built on top of:
 % Faster R-CNN
@@ -25,9 +25,9 @@ active_caffe_mex(opts.gpu_id, opts.caffe_version);
 % do validation, or not 
 opts.do_val                 = true; 
 % model
-model                       = Model.NSCT_for_Faster_RCNN_VOC2007;
+model                       = Model.HC_Feats_for_Faster_RCNN_VOC2007;
 % cache base
-cache_base_proposal         = 'faster_rcnn_VOC2007_NSCT';
+cache_base_proposal         = 'faster_rcnn_VOC2007_HC_Feats';
 cache_base_fast_rcnn        = '';
 % train/test data
 dataset                     = [];

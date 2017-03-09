@@ -12,7 +12,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     ip.addRequired('imdb_train',                                @iscell);
     ip.addRequired('roidb_train',                               @iscell);
     ip.addParamValue('do_val',              false,              @isscalar);
-    ip.addParamValue('NSCT_Flag',           false,              @isscalar);
+    ip.addParamValue('HC_Feats_Flag',       false,              @isscalar);
     ip.addParamValue('imdb_val',            struct(),           @isstruct);
     ip.addParamValue('roidb_val',           struct(),           @isstruct);
     
@@ -48,7 +48,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     caffe_log_file_base = fullfile(cache_dir, 'caffe_log');
     caffe.init_log(caffe_log_file_base);
     caffe_solver = caffe.Solver(opts.solver_def_file);
-    if ~(opts.NSCT_Flag)
+    if ~(opts.HC_Feats_Flag)
         caffe_solver.net.copy_from(opts.net_file);
     end
     

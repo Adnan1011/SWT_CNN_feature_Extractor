@@ -1,4 +1,4 @@
-net: "./models/fast_rcnn_prototxts/NSCT/train_val.prototxt"
+net: "./models/rpn_prototxts/HC_Feats/train_val.prototxt"
 base_lr: 0.001
 lr_policy: "step"
 gamma: 0.1

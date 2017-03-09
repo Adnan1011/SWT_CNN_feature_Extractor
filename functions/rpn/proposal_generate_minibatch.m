@@ -1,4 +1,4 @@
-function [input_blobs, random_scale_inds] = proposal_generate_minibatch(conf, image_roidb)
+function [input_blobs, random_scale_inds] = proposal_generate_minibatch(conf, image_roidb, use_HC_Feats)
 % [input_blobs, random_scale_inds] = proposal_generate_minibatch(conf, image_roidb)
 % --------------------------------------------------------
 % Faster R-CNN
@@ -18,8 +18,8 @@ function [input_blobs, random_scale_inds] = proposal_generate_minibatch(conf, im
     rois_per_image = conf.batch_size / num_images;
     fg_rois_per_image = round(rois_per_image * conf.fg_fraction);
     
-    % Get the input image blob
-    [im_blob, im_scales] = get_image_blob(conf, image_roidb, random_scale_inds);
+    % Get the input image or feature blob
+    [im_blob, im_scales] = get_image_blob(conf, image_roidb, random_scale_inds, use_HC_Feats);
     
     for i = 1:num_images
         [labels, label_weights, bbox_targets, bbox_loss] = ...
@@ -45,7 +45,9 @@ function [input_blobs, random_scale_inds] = proposal_generate_minibatch(conf, im
     end
     
     % permute data into caffe c++ memory, thus [num, channels, height, width]
-    im_blob = im_blob(:, :, [3, 2, 1], :); % from rgb to brg
+    if ~use_HC_Feats
+        im_blob = im_blob(:, :, [3, 2, 1], :); % from rgb to brg
+    end
     im_blob = single(permute(im_blob, [2, 1, 3, 4]));
     labels_blob = single(labels_blob);
     labels_blob(labels_blob > 0) = 1; %to binary lable (fg and bg)
@@ -64,16 +66,20 @@ end
 
 
 %% Build an input blob from the images in the roidb at the specified scales.
-function [im_blob, im_scales] = get_image_blob(conf, images, random_scale_inds)
+function [im_blob, im_scales] = get_image_blob(conf, images, random_scale_inds, use_HC_Feats)
     
     num_images = length(images);
     processed_ims = cell(num_images, 1);
     im_scales = nan(num_images, 1);
     for i = 1:num_images
-        im = imread(images(i).image_path);
+        if use_HC_Feats
+            im = GenerateFeatures(images(i).image_path);
+        else
+            im = imread(images(i).image_path);
+        end
         target_size = conf.scales(random_scale_inds(i));
         
-        [im, im_scale] = prep_im_for_blob(im, conf.image_means, target_size, conf.max_size);
+        [im, im_scale] = prep_im_for_blob(im, conf.image_means, target_size, conf.max_size, use_HC_Feats);
         
         im_scales(i) = im_scale;
         processed_ims{i} = im; 

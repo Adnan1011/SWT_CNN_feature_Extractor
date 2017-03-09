@@ -10,6 +10,7 @@ function aboxes = proposal_test(conf, imdb, varargin)
     ip = inputParser;
     ip.addRequired('conf',                              @isstruct);
     ip.addRequired('imdb',                              @isstruct);
+    ip.addParamValue('use_HC_Feats',    false,          @isscalar);
     ip.addParamValue('net_def_file',    fullfile(pwd, 'proposal_models', 'Zeiler_conv5', 'test.prototxt'), ...
                                                         @isstr);
     ip.addParamValue('net_file',        fullfile(pwd, 'proposal_models', 'Zeiler_conv5', 'Zeiler_conv5.caffemodel'), ...
@@ -75,9 +76,13 @@ function aboxes = proposal_test(conf, imdb, varargin)
             count = count + 1;
             fprintf('%s: test (%s) %d/%d ', procid(), imdb.name, count, num_images);
             th = tic;
-            im = imread(imdb.image_at(i));
+            if opts.use_HC_Feats
+                im = GenerateFeatures(imdb.image_at(i));
+            else
+                im = imread(imdb.image_at(i));
+            end
 
-            [boxes, scores, abox_deltas{i}, aanchors{i}, ascores{i}] = proposal_im_detect(conf, caffe_net, im);
+            [boxes, scores, abox_deltas{i}, aanchors{i}, ascores{i}] = proposal_im_detect(conf, caffe_net, im, opts.use_HC_Feats);
             
             fprintf(' time: %.3fs\n', toc(th));  
             

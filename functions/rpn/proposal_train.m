@@ -30,7 +30,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
                                                         @isstr);    
     
     ip.parse(conf, imdb_train, roidb_train, varargin{:});
-    opts = ip.Results;
+    opts = ip.Results;   
     
 %% try to find trained model
     imdbs_name = cell2mat(cellfun(@(x) x.name, imdb_train, 'UniformOutput', false));
@@ -113,7 +113,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
 
         % generate minibatch training data
         [shuffled_inds, sub_db_inds] = generate_random_minibatch(shuffled_inds, image_roidb_train, conf.ims_per_batch);        
-        [net_inputs, scale_inds] = proposal_generate_minibatch_fun(conf, image_roidb_train(sub_db_inds));
+        [net_inputs, scale_inds] = proposal_generate_minibatch_fun(conf, image_roidb_train(sub_db_inds), opts.HC_Feats_Flag);
         
         % visual_debug_fun(conf, image_roidb_train(sub_db_inds), net_inputs, bbox_means, bbox_stds, conf.classes, scale_inds);
         caffe_solver.net.reshape_as_input(net_inputs);
@@ -129,7 +129,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
         % do valdiation per val_interval iterations
         if ~mod(iter_, opts.val_interval) 
             if opts.do_val
-                val_results = do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val);
+                val_results = do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val, use_HC_Feats);
             end
             
             show_state(iter_, train_results, val_results);
@@ -147,7 +147,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     
     % final validation
     if opts.do_val
-        do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val);
+        do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val, use_HC_Feats);
     end
     % final snapshot
     snapshot(conf, caffe_solver, bbox_means, bbox_stds, cache_dir, sprintf('iter_%d', iter_));
@@ -159,13 +159,13 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
  
 end
 
-function val_results = do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val)
+function val_results = do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val, use_HC_Feats)
     val_results = [];
 
     caffe_solver.net.set_phase('test');
     for i = 1:length(shuffled_inds_val)
         sub_db_inds = shuffled_inds_val{i};
-        [net_inputs, ~] = proposal_generate_minibatch_fun(conf, image_roidb_val(sub_db_inds));
+        [net_inputs, ~] = proposal_generate_minibatch_fun(conf, image_roidb_val(sub_db_inds), use_HC_Feats);
 
         % Reshape net's input blobs
         caffe_solver.net.reshape_as_input(net_inputs);

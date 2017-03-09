@@ -1,4 +1,4 @@
-function [pred_boxes, scores, box_deltas_, anchors_, scores_] = proposal_im_detect(conf, caffe_net, im)
+function [pred_boxes, scores, box_deltas_, anchors_, scores_] = proposal_im_detect(conf, caffe_net, im, use_HC_Feats)
 % [pred_boxes, scores, box_deltas_, anchors_, scores_] = proposal_im_detect(conf, im, net_idx)
 % --------------------------------------------------------
 % Faster R-CNN
@@ -7,12 +7,14 @@ function [pred_boxes, scores, box_deltas_, anchors_, scores_] = proposal_im_dete
 % --------------------------------------------------------    
 
     im = single(im);
-    [im_blob, im_scales] = get_image_blob(conf, im);
+    [im_blob, im_scales] = get_image_blob(conf, im, use_HC_Feats);
     im_size = size(im);
     scaled_im_size = round(im_size * im_scales);
     
     % permute data into caffe c++ memory, thus [num, channels, height, width]
-    im_blob = im_blob(:, :, [3, 2, 1], :); % from rgb to brg
+    if ~use_HC_Feats
+        im_blob = im_blob(:, :, [3, 2, 1], :); % from rgb to brg
+    end
     im_blob = permute(im_blob, [2, 1, 3, 4]);
     im_blob = single(im_blob);
 
@@ -69,11 +71,11 @@ function [data_blob, rois_blob, im_scale_factors] = get_blobs(conf, im, rois)
     rois_blob = get_rois_blob(conf, rois, im_scale_factors);
 end
 
-function [blob, im_scales] = get_image_blob(conf, im)
+function [blob, im_scales] = get_image_blob(conf, im, use_HC_Feats)
     if length(conf.test_scales) == 1
-        [blob, im_scales] = prep_im_for_blob(im, conf.image_means, conf.test_scales, conf.test_max_size);
+        [blob, im_scales] = prep_im_for_blob(im, conf.image_means, conf.test_scales, conf.test_max_size, use_HC_Feats);
     else
-        [ims, im_scales] = arrayfun(@(x) prep_im_for_blob(im, conf.image_means, x, conf.test_max_size), conf.test_scales, 'UniformOutput', false);
+        [ims, im_scales] = arrayfun(@(x) prep_im_for_blob(im, conf.image_means, x, conf.test_max_size, use_HC_Feats), conf.test_scales, 'UniformOutput', false);
         im_scales = cell2mat(im_scales);
         blob = im_list_to_blob(ims);    
     end

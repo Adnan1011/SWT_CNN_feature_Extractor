@@ -1,8 +1,13 @@
-function roidb_new = do_proposal_test(conf, model_stage, imdb, roidb)
+function roidb_new = do_proposal_test(conf, model_stage, imdb, roidb, HC_Feats_Flag)
+    use_HC_Feats = false;
+    if exist('HC_Feats_Flag', 'var')
+        use_HC_Feats = true;
+    end
     aboxes                      = proposal_test(conf, imdb, ...
                                         'net_def_file',     model_stage.test_net_def_file, ...
                                         'net_file',         model_stage.output_model_file, ...
-                                        'cache_name',       model_stage.cache_name);      
+                                        'cache_name',       model_stage.cache_name, ...
+                                        'use_HC_Feats',     use_HC_Feats);      
                                     
     aboxes                      = boxes_filter(aboxes, model_stage.nms.per_nms_topN, model_stage.nms.nms_overlap_thres, model_stage.nms.after_nms_topN, conf.use_gpu);    
     

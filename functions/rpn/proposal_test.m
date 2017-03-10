@@ -77,7 +77,7 @@ function aboxes = proposal_test(conf, imdb, varargin)
             fprintf('%s: test (%s) %d/%d ', procid(), imdb.name, count, num_images);
             th = tic;
             if opts.use_HC_Feats
-                im = GenerateFeatures(imdb.image_at(i));
+                im = GenerateFeatures(imdb.image_at(i), 'SWT');
             else
                 im = imread(imdb.image_at(i));
             end

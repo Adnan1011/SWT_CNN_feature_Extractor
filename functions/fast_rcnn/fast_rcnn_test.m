@@ -98,7 +98,7 @@ function mAP = fast_rcnn_test(conf, imdb, roidb, varargin)
             th = tic;
             d = roidb.rois(i);
             if opts.use_HC_Feats
-                im = GenerateFeatures(imdb.image_at(i));
+                im = GenerateFeatures(imdb.image_at(i), 'SWT');
             else
                 im = imread(imdb.image_at(i));
             end

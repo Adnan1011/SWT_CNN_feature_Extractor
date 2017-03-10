@@ -89,7 +89,7 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
     
 %%  try to train/val with images which have maximum size potentially, to validate whether the gpu memory is enough  
     num_classes = size(image_roidb_train(1).overlap, 2);
-    check_gpu_memory(conf, caffe_solver, num_classes, opts.do_val);
+    check_gpu_memory(conf, caffe_solver, num_classes, opts.do_val, opts.use_HC_Feats);
     
 %% training
     shuffled_inds = [];
@@ -196,11 +196,15 @@ function [shuffled_inds, sub_inds] = generate_random_minibatch(shuffled_inds, im
 end
 
 
-function check_gpu_memory(conf, caffe_solver, num_classes, do_val)
+function check_gpu_memory(conf, caffe_solver, num_classes, do_val, use_HC_Feats)
 %%  try to train/val with images which have maximum size potentially, to validate whether the gpu memory is enough  
 
     % generate pseudo training data with max size
-    im_blob = single(zeros(max(conf.scales), conf.max_size, 3, conf.ims_per_batch));
+    if use_HC_Feats
+        im_blob = single(zeros(max(conf.scales), conf.max_size, 24, conf.ims_per_batch));
+    else
+        im_blob = single(zeros(max(conf.scales), conf.max_size, 3, conf.ims_per_batch));
+    end
     rois_blob = single(repmat([0; 0; 0; max(conf.scales)-1; conf.max_size-1], 1, conf.batch_size));
     rois_blob = permute(rois_blob, [3, 4, 1, 2]);
     labels_blob = single(ones(conf.batch_size, 1));

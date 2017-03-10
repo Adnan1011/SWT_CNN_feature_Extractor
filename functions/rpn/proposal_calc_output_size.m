@@ -1,4 +1,4 @@
-function [output_width_map, output_height_map] = proposal_calc_output_size(conf, test_net_def_file)
+function [output_width_map, output_height_map] = proposal_calc_output_size(conf, test_net_def_file, use_HC_Feats)
 % [output_width_map, output_height_map] = proposal_calc_output_size(conf, test_net_def_file)
 % --------------------------------------------------------
 % Faster R-CNN
@@ -21,7 +21,11 @@ function [output_width_map, output_height_map] = proposal_calc_output_size(conf,
     output_h = nan(size(input));
     for i = 1:length(input)
         s = input(i);
-        im_blob = single(zeros(s, s, 3, 1));
+        if exist('use_HC_Feats', 'var')
+            im_blob = single(zeros(s, s, 24, 1));
+        else
+            im_blob = single(zeros(s, s, 3, 1));
+        end
         net_inputs = {im_blob};
 
         % Reshape net's input blobs

@@ -8,7 +8,7 @@ model.rpn.solver_def_file                = fullfile(pwd, 'models', 'rpn_prototxt
 model.rpn.test_net_def_file              = fullfile(pwd, 'models', 'rpn_prototxts', 'HC_Feats', 'test.prototxt');
 
 % RPN test setting
-model.rpn.nms.per_nms_topN              	= -1;
+model.rpn.nms.per_nms_topN              = -1;
 model.rpn.nms.nms_overlap_thres        	= 0.7;
 model.rpn.nms.after_nms_topN           	= 2000;
 

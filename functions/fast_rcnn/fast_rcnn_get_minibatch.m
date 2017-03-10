@@ -71,7 +71,7 @@ function [im_blob, im_scales] = get_image_blob(conf, images, random_scale_inds, 
     im_scales = nan(num_images, 1);
     for i = 1:num_images
         if use_HC_Feats
-            im = GenerateFeatures(images(i).image_path);
+            im = GenerateFeatures(images(i).image_path, 'SWT');
         else
             im = imread(images(i).image_path);
         end

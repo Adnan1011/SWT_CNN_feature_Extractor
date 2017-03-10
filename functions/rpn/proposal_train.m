@@ -94,7 +94,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     conf.classes        = opts.imdb_train{1}.classes;
     
 %%  try to train/val with images which have maximum size potentially, to validate whether the gpu memory is enough  
-    check_gpu_memory(conf, caffe_solver, opts.do_val);
+    check_gpu_memory(conf, caffe_solver, opts.do_val, opts.HC_Feats_Flag);
      
 %% -------------------- Training -------------------- 
 
@@ -229,11 +229,15 @@ function rst = check_error(rst, caffe_solver)
     rst(end+1) = struct('blob_name', 'accuracy_bg', 'data', accuracy_bg);
 end
 
-function check_gpu_memory(conf, caffe_solver, do_val)
+function check_gpu_memory(conf, caffe_solver, do_val, use_HC_Feats)
 %%  try to train/val with images which have maximum size potentially, to validate whether the gpu memory is enough  
 
     % generate pseudo training data with max size
-    im_blob = single(zeros(max(conf.scales), conf.max_size, 3, conf.ims_per_batch));
+    if use_HC_Feats
+        im_blob = single(zeros(max(conf.scales), conf.max_size, 24, conf.ims_per_batch));
+    else
+        im_blob = single(zeros(max(conf.scales), conf.max_size, 3, conf.ims_per_batch));
+    end
     
     anchor_num = size(conf.anchors, 1);
     output_width = conf.output_width_map.values({size(im_blob, 1)});

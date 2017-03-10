@@ -62,7 +62,6 @@ model.fast_rcnn      = Faster_RCNN_Train.do_fast_rcnn_train(conf_fast_rcnn, data
 fprintf('\n***************\nFinal test\n***************\n');
      
 model.rpn.nms        = model.final_test.nms;
-dataset.roidb_test   = Faster_RCNN_Train.do_proposal_test(conf_proposal, model.rpn, dataset.imdb_test, dataset.roidb_test, true);
 opts.final_mAP       = Faster_RCNN_Train.do_fast_rcnn_test(conf_fast_rcnn, model.fast_rcnn, dataset.imdb_test, dataset.roidb_test, true);
 
 % save final models, for outside tester

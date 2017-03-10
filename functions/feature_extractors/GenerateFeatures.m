@@ -20,7 +20,8 @@ end
 %         ColorLayers = temp(:,:,2:3);
 % end 
 
-scales = floor(log2(min([size(img,1),size(img,2)]))) - 1;
+%scales = floor(log2(min([size(img,1),size(img,2)]))) - 1;
+scales = 7;
 
 switch lower(option)   
     case lower('SWT')

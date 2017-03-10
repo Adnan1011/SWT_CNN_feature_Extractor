@@ -129,7 +129,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
         % do valdiation per val_interval iterations
         if ~mod(iter_, opts.val_interval) 
             if opts.do_val
-                val_results = do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val, use_HC_Feats);
+                val_results = do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val, opts.HC_Feats_Flag);
             end
             
             show_state(iter_, train_results, val_results);
@@ -147,7 +147,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     
     % final validation
     if opts.do_val
-        do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val, use_HC_Feats);
+        do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val, opts.HC_Feats_Flag);
     end
     % final snapshot
     snapshot(conf, caffe_solver, bbox_means, bbox_stds, cache_dir, sprintf('iter_%d', iter_));

@@ -65,7 +65,7 @@ function mAP = fast_rcnn_test(conf, imdb, roidb, varargin)
         end             
 
         % determine the maximum number of rois in testing 
-        max_rois_num_in_gpu = check_gpu_memory(conf, caffe_net);
+        max_rois_num_in_gpu = check_gpu_memory(conf, caffe_net, opts.use_HC_Feats);
 
         disp('opts:');
         disp(opts);
@@ -195,13 +195,17 @@ function mAP = fast_rcnn_test(conf, imdb, roidb, varargin)
     diary off;
 end
 
-function max_rois_num = check_gpu_memory(conf, caffe_net)
+function max_rois_num = check_gpu_memory(conf, caffe_net, use_HC_Feats)
 %%  try to determine the maximum number of rois
 
     max_rois_num = 0;
     for rois_num = 500:500:5000
         % generate pseudo testing data with max size
-        im_blob = single(zeros(conf.max_size, conf.max_size, 3, 1));
+        if use_HC_Feats
+            im_blob = single(zeros(conf.max_size, conf.max_size, 24, 1));
+        else
+            im_blob = single(zeros(conf.max_size, conf.max_size, 3, 1));
+        end
         rois_blob = single(repmat([0; 0; 0; conf.max_size-1; conf.max_size-1], 1, rois_num));
         rois_blob = permute(rois_blob, [3, 4, 1, 2]);
 

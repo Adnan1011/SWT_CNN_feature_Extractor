@@ -65,6 +65,11 @@ running_time = [];
 for j = 1:length(im_names)    
     
     im = GenerateFeatures(fullfile(pwd, im_names{j}), 'SWT');
+%     for i=1:size(im,3)
+%         imshow(im(:,:,i),[])
+%         title(num2str(i));
+%         pause
+%     end
 %     if opts.use_gpu
 %         im = gpuArray(im);
 %     end

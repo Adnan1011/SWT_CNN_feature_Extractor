@@ -2,14 +2,15 @@ function features = GenerateFeatures(imgPath, option)
 
 img = imread(imgPath);
 
-% Transoform to YCbCr color space
+% Transform to YCbCr color space
 if size(img,3) ~= 1 
-        temp = rgb2ycbcr(img); 
-        imgL = temp(:,:,1); 
-        ColorLayers = double(temp(:,:,2:3));
+        temp = im2double(rgb2ycbcr(img));
+        imgL = temp(:, :, 1);
+        ColorLayers(:, :, 1) = temp(:, :, 2) - mean(mean(temp(:, :, 2)));
+        ColorLayers(:, :, 2) = temp(:, :, 3) - mean(mean(temp(:, :, 3)));
         clear temp
 else 
-    imgL = img; 
+    imgL = im2double(img);
 end
 
 % Transform to Lab color space

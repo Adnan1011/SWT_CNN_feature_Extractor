@@ -51,7 +51,7 @@ for j = 1:2 % we warm up 2 times
     if opts.use_gpu
         im = gpuArray(im);
     end
-    [boxes, scores]             = proposal_im_detect(proposal_detection_model.conf_proposal, rpn_net, im);
+    [boxes, scores]             = proposal_im_detect(proposal_detection_model.conf_proposal, rpn_net, im, false);
     aboxes                      = boxes_filter([boxes, scores], opts.per_nms_topN, opts.nms_overlap_thres, opts.after_nms_topN, opts.use_gpu);
     if proposal_detection_model.is_share_feature
         [boxes, scores]             = fast_rcnn_conv_feat_detect(proposal_detection_model.conf_detection, fast_rcnn_net, im, ...
@@ -59,7 +59,7 @@ for j = 1:2 % we warm up 2 times
             aboxes(:, 1:4), opts.after_nms_topN);
     else
         [boxes, scores]             = fast_rcnn_im_detect(proposal_detection_model.conf_detection, fast_rcnn_net, im, ...
-            aboxes(:, 1:4), opts.after_nms_topN);
+            aboxes(:, 1:4), opts.after_nms_topN, false);
     end
 end
 
@@ -78,8 +78,8 @@ for j = 1:length(im_names)
     
     % test proposal
     th = tic();
-    [boxes, scores]             = proposal_im_detect(proposal_detection_model.conf_proposal, rpn_net, im);
-    t_proposal = toc(th);
+    [boxes, scores]             = proposal_im_detect(proposal_detection_model.conf_proposal, rpn_net, im, false);
+    t_proposal = toc(th);    
     th = tic();
     aboxes                      = boxes_filter([boxes, scores], opts.per_nms_topN, opts.nms_overlap_thres, opts.after_nms_topN, opts.use_gpu);
     t_nms = toc(th);
@@ -92,7 +92,7 @@ for j = 1:length(im_names)
             aboxes(:, 1:4), opts.after_nms_topN);
     else
         [boxes, scores]             = fast_rcnn_im_detect(proposal_detection_model.conf_detection, fast_rcnn_net, im, ...
-            aboxes(:, 1:4), opts.after_nms_topN);
+            aboxes(:, 1:4), opts.after_nms_topN, false);
     end
     t_detection = toc(th);
     

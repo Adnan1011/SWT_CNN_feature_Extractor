@@ -47,6 +47,8 @@ function conf = fast_rcnn_config(varargin)
     ip.addParamValue('test_nms',        0.3,            @isscalar);
     ip.addParamValue('test_binary',     false,          @islogical);
     
+    %% General
+    ip.addParamValue('feature_depth',   24,             @isscalar);
     ip.parse(varargin{:});
     conf = ip.Results;
     

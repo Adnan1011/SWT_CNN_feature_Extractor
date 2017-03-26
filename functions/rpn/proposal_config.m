@@ -59,6 +59,8 @@ function conf = proposal_config(varargin)
     ip.addParamValue('test_drop_boxes_runoff_image', ...
                                         false,          @islogical);
     
+    %% General
+    ip.addParamValue('feature_depth',   24,             @isscalar);
     ip.parse(varargin{:});
     conf = ip.Results;
     

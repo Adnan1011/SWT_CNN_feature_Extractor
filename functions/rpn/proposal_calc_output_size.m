@@ -22,7 +22,7 @@ function [output_width_map, output_height_map] = proposal_calc_output_size(conf,
     for i = 1:length(input)
         s = input(i);
         if exist('use_HC_Feats', 'var')
-            im_blob = single(zeros(s, s, 24, 1));
+            im_blob = single(zeros(s, s, conf.feature_depth, 1));
         else
             im_blob = single(zeros(s, s, 3, 1));
         end

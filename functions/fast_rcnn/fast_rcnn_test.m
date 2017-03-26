@@ -202,7 +202,7 @@ function max_rois_num = check_gpu_memory(conf, caffe_net, use_HC_Feats)
     for rois_num = 500:500:5000
         % generate pseudo testing data with max size
         if use_HC_Feats
-            im_blob = single(zeros(conf.max_size, conf.max_size, 24, 1));
+            im_blob = single(zeros(conf.max_size, conf.max_size, conf.feature_depth, 1));
         else
             im_blob = single(zeros(conf.max_size, conf.max_size, 3, 1));
         end

@@ -16,7 +16,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     ip.addParamValue('imdb_val',            struct(),           @isstruct);
     ip.addParamValue('roidb_val',           struct(),           @isstruct);
     
-    ip.addParamValue('val_iters',           500,                @isscalar);
+    ip.addParamValue('val_iters',           5,                @isscalar);
     ip.addParamValue('val_interval',        2000,               @isscalar);
     ip.addParamValue('snapshot_interval',...
                                             10000,              @isscalar);
@@ -234,7 +234,7 @@ function check_gpu_memory(conf, caffe_solver, do_val, use_HC_Feats)
 
     % generate pseudo training data with max size
     if use_HC_Feats
-        im_blob = single(zeros(max(conf.scales), conf.max_size, 24, conf.ims_per_batch));
+        im_blob = single(zeros(max(conf.scales), conf.max_size, conf.feature_depth, conf.ims_per_batch));
     else
         im_blob = single(zeros(max(conf.scales), conf.max_size, 3, conf.ims_per_batch));
     end

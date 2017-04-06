@@ -38,6 +38,9 @@ switch lower(option)
         ind = 4:4:size(features,3); 
         features(:,:,ind) = []; 
         features = max(features, [], 3);
+        min_feature_val = min(min(features));
+        max_feature_val = max(max(features));
+        features = (features - min_feature_val) / (max_feature_val - min_feature_val);
         features = single(features - mean(mean(features)));
     otherwise
         error('Unknown option'); 

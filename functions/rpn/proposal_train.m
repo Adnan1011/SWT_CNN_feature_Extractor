@@ -203,16 +203,16 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
         iter_ = caffe_solver.iter();
     end
     
-%     figure;
-%     plot(1:max_iter, conf_loss);
-%     xlabel('iterations')
-%     ylabel('classification loss')
-%     title('RPN classification training loss')
-%     figure;
-%     plot(1:max_iter, bbox_loss);
-%     xlabel('iterations')
-%     ylabel('bbox regression loss')
-%     title('RPN Bbox regression training loss')
+    figure;
+    plot(1:max_iter, conf_loss);
+    xlabel('iterations')
+    ylabel('classification loss')
+    title('RPN classification training loss')
+    figure;
+    plot(1:max_iter, bbox_loss);
+    xlabel('iterations')
+    ylabel('bbox regression loss')
+    title('RPN Bbox regression training loss')
     
     % final validation
     if opts.do_val

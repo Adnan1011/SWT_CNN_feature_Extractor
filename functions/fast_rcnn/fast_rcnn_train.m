@@ -98,6 +98,8 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
     iter_ = caffe_solver.iter();
     max_iter = caffe_solver.max_iter();
     
+    conf_loss = zeros(1,max_iter);
+    bbox_loss = zeros(1,max_iter);    
     while (iter_ < max_iter)
         caffe_solver.net.set_phase('train');
 
@@ -115,6 +117,8 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
         
         rst = caffe_solver.net.get_output();
         train_results = parse_rst(train_results, rst);
+        conf_loss(iter_) = rst(3).data;
+        bbox_loss(iter_) = rst(2).data;
             
         % do valdiation per val_interval iterations
         if ~mod(iter_, opts.val_interval) 
@@ -149,6 +153,18 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
         
         iter_ = caffe_solver.iter();
     end
+    
+    figure;
+    plot(1:max_iter, conf_loss);
+    xlabel('iterations')
+    ylabel('classification loss')
+    title('Fast RCNN classification training loss')
+    figure;
+    plot(1:max_iter, bbox_loss);
+    xlabel('iterations')
+    ylabel('bbox regression loss')
+    title('Fast RCNN Bbox regression training loss')
+    figure;
     
     % final snapshot
     snapshot(caffe_solver, bbox_means, bbox_stds, cache_dir, sprintf('iter_%d', iter_));

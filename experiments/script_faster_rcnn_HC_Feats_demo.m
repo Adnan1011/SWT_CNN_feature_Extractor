@@ -15,10 +15,10 @@ opts.after_nms_topN         = 300;
 opts.use_gpu                = true;
 
 opts.test_scales            = 600;
-feature_depth               = 24;
+feature_depth               = 1;
 
 %% -------------------- INIT_MODEL --------------------
-model_dir                   = fullfile(pwd, 'models', 'trained_models'); %% HC Feats
+model_dir                   = fullfile(pwd, 'output', 'trained_models'); %% HC Feats
 proposal_detection_model    = load_proposal_detection_model(model_dir);
 if opts.use_gpu
     proposal_detection_model.conf_proposal.image_means = gpuArray(proposal_detection_model.conf_proposal.image_means);

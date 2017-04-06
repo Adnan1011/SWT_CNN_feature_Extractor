@@ -1,10 +1,10 @@
 net: "./models/fast_rcnn_prototxts/HC_Feats/train_val.prototxt"
-base_lr: 0.01
+base_lr: 0.001
 lr_policy: "step"
-gamma: 0.7
-stepsize: 5011
+gamma: 0.1
+stepsize: 1500
 display: 20
-max_iter: 40088
+max_iter: 2480
 momentum: 0.9
 weight_decay: 0.0005
 # We disable standard caffe solver snapshotting and implement our own snapshot

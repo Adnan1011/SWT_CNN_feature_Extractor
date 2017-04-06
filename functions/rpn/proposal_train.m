@@ -108,6 +108,9 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     iter_ = caffe_solver.iter();
     max_iter = caffe_solver.max_iter();
     
+    flag_vis = 0;
+    conf_loss = zeros(1, max_iter);
+    bbox_loss = zeros(1, max_iter);
     while (iter_ < max_iter)
         caffe_solver.net.set_phase('train');
 
@@ -120,11 +123,66 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
 
         % one iter SGD update
         caffe_solver.net.set_input_data(net_inputs);
+%             norm_feats = caffe_solver.net.blobs('raw_features').get_data();
+%     norm_feats = permute(norm_feats, [2, 1, 3, 4]);
+%     for i=1:size(norm_feats,3)
+%         imshow(norm_feats(:,:,i),[])
+%         title(strcat(num2str(i), ' raw features'));
+%         pause
+%     end
         caffe_solver.step(1);
+        if ~mod(iter_, 50)
+            if flag_vis
+                flag_vis = 0;
+                norm_feats = caffe_solver.net.blobs('mvn0').get_data();
+                norm_feats = permute(norm_feats, [2, 1, 3, 4]);
+                for i=1:size(norm_feats,3)
+                    imshow(norm_feats(:,:,i),[])
+                    title(strcat(num2str(i), ' mvn0'));
+                    pause
+                end
+            end
+        end
+        if ~mod(iter_, 50)
+            if flag_vis
+                flag_vis = 0;
+                norm_feats = caffe_solver.net.blobs('pool1').get_data();
+                norm_feats = permute(norm_feats, [2, 1, 3, 4]);
+                for i=1:size(norm_feats,3)
+                    imshow(norm_feats(:,:,i),[])
+                    title(strcat(num2str(i), ' pool1'));
+                    pause
+                end
+            end
+        end
+        if ~mod(iter_, 50)
+            if flag_vis
+                flag_vis = 0;
+                norm_feats = caffe_solver.net.blobs('conv2').get_data();
+                norm_feats = permute(norm_feats, [2, 1, 3, 4]);
+                for i=1:size(norm_feats,3)
+                    imshow(norm_feats(:,:,i),[])
+                    title(strcat(num2str(i), ' conv2'));
+                    pause
+                end
+            end
+        end
+        if ~mod(iter_, 50)
+            if flag_vis
+                flag_vis = 0;
+                norm_feats = caffe_solver.net.blobs('conv3').get_data();
+                norm_feats = permute(norm_feats, [2, 1, 3, 4]);
+                for i=1:size(norm_feats,3)
+                    imshow(norm_feats(:,:,i),[])
+                    title(strcat(num2str(i), ' conv3'));
+                    pause
+                end
+            end
+        end
         rst = caffe_solver.net.get_output();
         rst = check_error(rst, caffe_solver);
         train_results = parse_rst(train_results, rst);
-        % check_loss(rst, caffe_solver, net_inputs);
+        [conf_loss(iter_), bbox_loss(iter_)] = check_loss_lite(rst);
 
         % do valdiation per val_interval iterations
         if ~mod(iter_, opts.val_interval) 
@@ -145,6 +203,17 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
         iter_ = caffe_solver.iter();
     end
     
+%     figure;
+%     plot(1:max_iter, conf_loss);
+%     xlabel('iterations')
+%     ylabel('classification loss')
+%     title('RPN classification training loss')
+%     figure;
+%     plot(1:max_iter, bbox_loss);
+%     xlabel('iterations')
+%     ylabel('bbox regression loss')
+%     title('RPN Bbox regression training loss')
+    
     % final validation
     if opts.do_val
         do_validation(conf, caffe_solver, proposal_generate_minibatch_fun, image_roidb_val, shuffled_inds_val, opts.HC_Feats_Flag);
@@ -153,7 +222,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     snapshot(conf, caffe_solver, bbox_means, bbox_stds, cache_dir, sprintf('iter_%d', iter_));
     save_model_path = snapshot(conf, caffe_solver, bbox_means, bbox_stds, cache_dir, 'final');
 
-    diary off;
+    diary off;    
     caffe.reset_all(); 
     rng(prev_rng);
  
@@ -309,7 +378,7 @@ function show_state(iter, train_results, val_results)
     end
 end
 
-function check_loss(rst, caffe_solver, input_blobs)
+function [conf_loss, bbox_loss] = check_loss(rst, caffe_solver, input_blobs)
     im_blob = input_blobs{1};
     labels_blob = input_blobs{2};
     label_weights_blob = input_blobs{3};
@@ -336,4 +405,13 @@ function check_loss(rst, caffe_solver, input_blobs)
     results = parse_rst([], rst);
     fprintf('C++   : conf %f, reg %f\n', results.loss_cls.data, results.loss_bbox.data);
     fprintf('Matlab: conf %f, reg %f\n', confidence_loss, regression_loss);
+    conf_loss = confidence_loss;
+    bbox_loss = regression_loss;
+end
+
+function [conf_loss, bbox_loss] = check_loss_lite(rst)  
+    results = parse_rst([], rst);
+    conf_loss = results.loss_cls.data;
+    bbox_loss = results.loss_bbox.data;
+    fprintf('conf %f, reg %f\n', conf_loss, bbox_loss);   
 end

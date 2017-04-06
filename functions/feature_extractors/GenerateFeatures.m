@@ -1,16 +1,21 @@
 function features = GenerateFeatures(imgPath, option)
 
 img = imread(imgPath);
-
+% I = rgb2ycbcr(img);
+% features = double(I(:,:,1)) - 110.0;
+% mean_filter = (1.0 / 9.0) * ones(3, 3);
+% mean_I = conv2(I, mean_filter, 'same');
+% std_I = real(sqrt(conv2(I.^2, mean_filter, 'same') - (mean_I.^2) + 1e-8));
+% features = single((I - mean_I) ./ std_I);
 % Transform to YCbCr color space
 if size(img,3) ~= 1 
-        temp = im2double(rgb2ycbcr(img));
+        temp = rgb2ycbcr(img);
         imgL = temp(:, :, 1);
-        ColorLayers(:, :, 1) = temp(:, :, 2) - mean(mean(temp(:, :, 2)));
-        ColorLayers(:, :, 2) = temp(:, :, 3) - mean(mean(temp(:, :, 3)));
+%         ColorLayers(:, :, 1) = temp(:, :, 2) - mean(mean(temp(:, :, 2)));
+%         ColorLayers(:, :, 2) = temp(:, :, 3) - mean(mean(temp(:, :, 3)));
         clear temp
 else 
-    imgL = im2double(img);
+    imgL = img;
 end
 
 % Transform to Lab color space
@@ -22,22 +27,24 @@ end
 % end 
 
 %scales = floor(log2(min([size(img,1),size(img,2)]))) - 1;
-scales = 7;
+scales = 2;
 
 switch lower(option)   
     case lower('SWT')
         features = SWT_coef(imgL,scales);
         features = features(:,:,end:-1:1);
         % Keep only the detail (horizontal, vertical and diagonal) tiles in
-        % each scale
-        ind = 8:4:size(features,3); 
+        % each scale        
+        ind = 4:4:size(features,3); 
         features(:,:,ind) = []; 
+        features = max(features, [], 3);
+        features = single(features - mean(mean(features)));
     otherwise
         error('Unknown option'); 
 end
 
-if size(img,3) ~= 1 
-    features = cat(3,features,ColorLayers); 
-end 
+% if size(img,3) ~= 1 
+%     features = cat(3,features,ColorLayers); 
+% end 
     
 end 

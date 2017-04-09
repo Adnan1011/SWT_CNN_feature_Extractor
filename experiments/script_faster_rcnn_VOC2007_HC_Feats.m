@@ -1,6 +1,6 @@
 function script_faster_rcnn_VOC2007_HC_Feats()
 % script_faster_rcnn_VOC2007_HC_Feats()
-% Faster rcnn training and testing using sophisticated trasnforms like
+% Faster rcnn training and testing using sophisticated transforms like
 % Non-subsampled contourlet transform as feature extractors
 % --------------------------------------------------------
 % Built on top of:

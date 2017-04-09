@@ -41,7 +41,7 @@ switch lower(option)
 %         min_feature_val = min(min(features));
 %         max_feature_val = max(max(features));
 %         features = (features - min_feature_val) / (max_feature_val - min_feature_val);
-        features = single(features - mean(mean(features)));
+%        features = single(features - mean(mean(features)));
     otherwise
         error('Unknown option'); 
 end

@@ -19,7 +19,7 @@ image_set_name = 'trainval.txt';
 image_ext = '.jpg';
 solver_def_file = fullfile(pwd, 'models', 'CAE_prototxts', 'solver.prototxt');
 rng_seed = 7;
-batch_size = 4;
+batch_size = 50;
 snapshot_interval = 10000;
 % Spatial size of input image/feature map
 input_size = [127 127];
@@ -84,11 +84,11 @@ plot(1:max_iters, training_results.cross_entropy_loss.data');
 xlabel('iterations');
 ylabel('cross entropy loss');
 title('CAE cross entropy training loss');
-figure;
-plot(1:max_iters, training_results.l2_error.data');
-xlabel('iterations');
-ylabel('L2 loss');
-title('CAE L2 training loss');
+% figure;
+% plot(1:max_iters, training_results.l2_error.data');
+% xlabel('iterations');
+% ylabel('L2 loss');
+% title('CAE L2 training loss');
 %% Finalize
 % final snapshot
 snapshot(caffe_solver, cache_dir, 'CAE_final.caffemodel');

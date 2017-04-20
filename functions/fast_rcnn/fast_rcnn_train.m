@@ -121,9 +121,9 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
         
         rst = caffe_solver.net.get_output();
         train_results = parse_rst(train_results, rst);
-        conf_loss(iter_) = rst.loss_cls.data;
-        bbox_loss(iter_) = rst.loss_bbox.data;
-        accuracy(iter_) = rst.accuracy.data;
+        conf_loss(iter_) = train_results.loss_cls.data(iter_);
+        bbox_loss(iter_) = train_results.loss_bbox.data(iter_);
+        accuracy(iter_) = train_results.accuracy.data(iter_);
         fprintf('iter: %d, conf %f, reg %f, acc %f\n', iter_, conf_loss(iter_),...
             bbox_loss(iter_), accuracy(iter_));
             

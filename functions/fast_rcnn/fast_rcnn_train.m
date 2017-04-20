@@ -46,6 +46,9 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
     caffe_solver = caffe.Solver(opts.solver_def_file);
     if ~opts.use_HC_Feats
         caffe_solver.net.copy_from(opts.net_file);
+    else
+        net_file = fullfile(pwd, 'output', 'CAE_cachedir', 'CAE_SWT_1_layer_80_filts_iter_4655.caffemodel');
+        caffe_solver.net.copy_from(net_file);
     end
 
     % init log
@@ -99,7 +102,8 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
     max_iter = caffe_solver.max_iter();
     
     conf_loss = zeros(1,max_iter);
-    bbox_loss = zeros(1,max_iter);    
+    bbox_loss = zeros(1,max_iter);
+    accuracy = zeros(1,max_iter); 
     while (iter_ < max_iter)
         caffe_solver.net.set_phase('train');
 
@@ -117,8 +121,11 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
         
         rst = caffe_solver.net.get_output();
         train_results = parse_rst(train_results, rst);
-        conf_loss(iter_) = rst(3).data;
-        bbox_loss(iter_) = rst(2).data;
+        conf_loss(iter_) = rst.loss_cls.data;
+        bbox_loss(iter_) = rst.loss_bbox.data;
+        accuracy(iter_) = rst.accuracy.data;
+        fprintf('iter: %d, conf %f, reg %f, acc %f\n', iter_, conf_loss(iter_),...
+            bbox_loss(iter_), accuracy(iter_));
             
         % do valdiation per val_interval iterations
         if ~mod(iter_, opts.val_interval) 

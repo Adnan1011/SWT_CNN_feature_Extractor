@@ -50,6 +50,9 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     caffe_solver = caffe.Solver(opts.solver_def_file);
     if ~(opts.HC_Feats_Flag)
         caffe_solver.net.copy_from(opts.net_file);
+    else
+        net_file = fullfile(pwd, 'output', 'CAE_cachedir', 'CAE_SWT_1_layer_80_filts_iter_4655.caffemodel');
+        caffe_solver.net.copy_from(net_file);
     end
     
     % init log
@@ -111,6 +114,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     flag_vis = 0;
     conf_loss = zeros(1, max_iter);
     bbox_loss = zeros(1, max_iter);
+    accuracy = zeros(1, max_iter);
     while (iter_ < max_iter)
         caffe_solver.net.set_phase('train');
 
@@ -182,7 +186,7 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
         rst = caffe_solver.net.get_output();
         rst = check_error(rst, caffe_solver);
         train_results = parse_rst(train_results, rst);
-        [conf_loss(iter_), bbox_loss(iter_)] = check_loss_lite(rst);
+        [conf_loss(iter_), bbox_loss(iter_), accuracy(iter_)] = check_loss_lite(rst, iter_);
 
         % do valdiation per val_interval iterations
         if ~mod(iter_, opts.val_interval) 
@@ -213,6 +217,11 @@ function save_model_path = proposal_train(conf, imdb_train, roidb_train, varargi
     xlabel('iterations')
     ylabel('bbox regression loss')
     title('RPN Bbox regression training loss')
+    figure;
+    plot(1:max_iter, accuracy);
+    xlabel('iterations')
+    ylabel('accuracy')
+    title('RPN training accuracy')
     
     % final validation
     if opts.do_val
@@ -409,9 +418,10 @@ function [conf_loss, bbox_loss] = check_loss(rst, caffe_solver, input_blobs)
     bbox_loss = regression_loss;
 end
 
-function [conf_loss, bbox_loss] = check_loss_lite(rst)  
+function [conf_loss, bbox_loss, accuracy] = check_loss_lite(rst, iter)  
     results = parse_rst([], rst);
     conf_loss = results.loss_cls.data;
     bbox_loss = results.loss_bbox.data;
-    fprintf('conf %f, reg %f\n', conf_loss, bbox_loss);   
+    accuracy = results.accuracy.data;
+    fprintf('iter: %d, conf %f, reg %f, acc %f\n', iter, conf_loss, bbox_loss, accuracy);   
 end

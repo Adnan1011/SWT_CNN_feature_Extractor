@@ -5,6 +5,7 @@
 % weights for the shallow CNN operating on top of Hand crafted  features
 function script_CAE_HC_Feats()
 clc;
+clear;
 clear mex;
 clear is_valid_handle; % to clear init_key
 run(fullfile(fileparts(fileparts(mfilename('fullpath'))), 'startup'));
@@ -18,12 +19,14 @@ image_files_path = fullfile(pwd, 'datasets', 'VOCdevkit2007', 'VOC2007', ...
 image_set_name = 'trainval.txt';
 image_ext = '.jpg';
 solver_def_file = fullfile(pwd, 'models', 'CAE_prototxts', 'solver.prototxt');
+weights_file = 'CAE_SWT_1_layer_80_filts_iter_4655.caffemodel';
 rng_seed = 7;
 batch_size = 50;
-snapshot_interval = 10000;
+snapshot_interval = 1000;
 % Spatial size of input image/feature map
-input_size = [127 127];
+input_size = [129 129];
 use_gpu = true;
+copy_weights = true;
 
 %% image paths
 
@@ -46,6 +49,10 @@ else
     caffe.set_mode_cpu();
 end
 shuffled_img_files = [];
+if copy_weights
+    weights_path = fullfile(cache_dir, weights_file);
+    caffe_solver.net.copy_from(weights_path);
+end
 % initialize some params
 epoch_size = ceil(num_images / batch_size);
 max_iters = caffe_solver.max_iter();
@@ -54,8 +61,12 @@ iter = caffe_solver.iter();
 current_pos = 1;
 % helpful for visualizing loss curves
 training_results = [];
-
 caffe_solver.net.set_phase('train');
+% % intialize real time plotting of training loss
+% figure_handle = figure('NumberTitle', 'off', 'Visible', 'off', ...
+%         'Name', 'Training loss');
+% axes_handle = axes('Parent',figure_handle, 'YGrid', 'on', 'XGrid', 'on');
+% plot_handle=plot(axes_handle, 0, 0);
 
 %% Training loop
 while(iter < max_iters)
@@ -72,8 +83,14 @@ while(iter < max_iters)
     caffe_solver.step(1);    
     rst = caffe_solver.net.get_output();    
     training_results = parse_rst(training_results, rst);
+    display(['iter: ' num2str(iter) ' loss = ' num2str(training_results.cross_entropy_loss.data(iter + 1)) ...
+        ', MSE = ' num2str(training_results.l2_error.data(iter + 1))]);
+%     % plot training loss
+%     set(plot_handle, 'YData', training_results.cross_entropy_loss.data', ...
+%         'XData', 1 : (iter + 1));
+%     set(figure_handle, 'Visible', 'on');
     % snapshot
-    if ~mod(iter, snapshot_interval)
+    if (~mod(iter, snapshot_interval)) && (iter ~= 0)
         snapshot(caffe_solver, cache_dir, sprintf('CAE_iter_%d.caffemodel', iter));
     end
     iter = caffe_solver.iter();
@@ -84,11 +101,11 @@ plot(1:max_iters, training_results.cross_entropy_loss.data');
 xlabel('iterations');
 ylabel('cross entropy loss');
 title('CAE cross entropy training loss');
-% figure;
-% plot(1:max_iters, training_results.l2_error.data');
-% xlabel('iterations');
-% ylabel('L2 loss');
-% title('CAE L2 training loss');
+figure;
+plot(1:max_iters, training_results.l2_error.data');
+xlabel('iterations');
+ylabel('MSE');
+title('CAE MSE vs iterations');
 %% Finalize
 % final snapshot
 snapshot(caffe_solver, cache_dir, 'CAE_final.caffemodel');
@@ -130,10 +147,7 @@ function input_blob = get_input_blob(mini_batch, input_size)
     batch_size = length(mini_batch);
     features = cell(batch_size, 1);    
     for i = 1 : batch_size        
-        feat_im = GenerateFeatures(mini_batch{i}, 'SWT');
-        min_feature_val = min(min(feat_im));
-        max_feature_val = max(max(feat_im));
-        feat_im = (feat_im - min_feature_val) / (max_feature_val - min_feature_val);
+        feat_im = GenerateFeatures(mini_batch{i}, 'SWT');        
         % resize
         feat_im = imresize(feat_im, input_size);
         features{i} = feat_im; 

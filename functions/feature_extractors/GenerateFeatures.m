@@ -9,7 +9,7 @@ img = imread(imgPath);
 % features = single((I - mean_I) ./ std_I);
 % Transform to YCbCr color space
 if size(img,3) ~= 1 
-        temp = rgb2ycbcr(img);
+        temp = double(rgb2ycbcr(img));
         imgL = temp(:, :, 1);
 %         ColorLayers(:, :, 1) = temp(:, :, 2) - mean(mean(temp(:, :, 2)));
 %         ColorLayers(:, :, 2) = temp(:, :, 3) - mean(mean(temp(:, :, 3)));
@@ -38,13 +38,14 @@ switch lower(option)
         ind = 4:4:size(features,3); 
         features(:,:,ind) = []; 
         features = max(features, [], 3);
-%         min_feature_val = min(min(features));
-%         max_feature_val = max(max(features));
-%         features = (features - min_feature_val) / (max_feature_val - min_feature_val);
-%        features = single(features - mean(mean(features)));
+        min_feature_val = min(min(features));
+        max_feature_val = max(max(features));
+        features = (features - min_feature_val) / (max_feature_val - min_feature_val);        
     otherwise
         error('Unknown option'); 
 end
+
+%features = imgL;
 
 % if size(img,3) ~= 1 
 %     features = cat(3,features,ColorLayers); 

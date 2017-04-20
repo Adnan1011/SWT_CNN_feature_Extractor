@@ -31,7 +31,7 @@ cache_base_proposal         = 'faster_rcnn_VOC2007_HC_Feats';
 cache_base_fast_rcnn        = '';
 % train/test data
 dataset                     = [];
-use_flipped                 = true;
+use_flipped                 = false;
 dataset                     = Dataset.voc2007_trainval(dataset, 'train', use_flipped);
 dataset                     = Dataset.voc2007_test(dataset, 'test', false);
 

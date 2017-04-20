@@ -23,7 +23,7 @@ function aboxes = boxes_filter(aboxes, per_nms_topN, nms_overlap_thres, after_nm
     cache_dir = fullfile(pwd, 'output', 'rpn_cachedir', cache_name, imdb_name);
     try
         % try to load cached post nms boxes
-        ld = load(fullfile(cache_dir, ['proposal_boxes_' imdb_name 'after_nms']));
+        ld = load(fullfile(cache_dir, ['proposal_boxes_' imdb_name '_after_nms']));
         aboxes = ld.aboxes;
         clear ld;
     catch
@@ -48,7 +48,7 @@ function aboxes = boxes_filter(aboxes, per_nms_topN, nms_overlap_thres, after_nm
         if after_nms_topN > 0
             aboxes = cellfun(@(x) x(1:min(length(x), after_nms_topN), :), aboxes, 'UniformOutput', false);
         end
-        save(fullfile(cache_dir, ['proposal_boxes_' imdb_name 'after_nms']), 'aboxes', '-v7.3');
+        save(fullfile(cache_dir, ['proposal_boxes_' imdb_name '_after_nms']), 'aboxes', '-v7.3');
     end
 end
 

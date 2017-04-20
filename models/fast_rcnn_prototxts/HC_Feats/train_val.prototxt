@@ -39,10 +39,10 @@ layer {
 	bottom: "raw_features"
 	top: "conv1"
 	param {
-		lr_mult: 1.0
+		lr_mult: 0.1
 	}
 	param {
-		lr_mult: 2.0
+		lr_mult: 0.2
 	}
 	convolution_param {
 		num_output: 80
@@ -220,11 +220,11 @@ layer {
 }
 
 layer {
-	name: "accuarcy"
+	name: "accuracy"
 	type: "Accuracy"
 	bottom: "cls_score"
 	bottom: "labels"
-	top: "accuarcy"
+	top: "accuracy"
 }
 
 layer {

@@ -148,8 +148,8 @@ function save_model_path = fast_rcnn_train(conf, imdb_train, roidb_train, vararg
             end
             
             show_state(iter_, train_results, val_results);
-            train_results = [];
-            val_results = [];
+            %train_results = [];
+            %val_results = [];
             diary; diary; % flush diary
         end
         

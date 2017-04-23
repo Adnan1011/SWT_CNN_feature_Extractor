@@ -16,7 +16,7 @@ active_caffe_mex(auto_select_gpu());
 dataset = fullfile(pwd, 'datasets', 'stl10_matlab', 'train');
 solver_def_file = fullfile(pwd, 'models', 'CLS_STL_10_prototxts', 'solver.prototxt');
 weights_file = fullfile(pwd, 'output', 'CAE_STL_10_cachedir', 'CAE_final.caffemodel');
-%weights_file = fullfile(pwd, 'output', 'CLS_STL_10_cachedir', 'CLS_STL_10_final.caffemodel');
+%weights_file = fullfile(pwd, 'output', 'CLS_STL_10_cachedir', 'CLS_STL_10_48.61%.caffemodel');
 rng_seed = 7;
 batch_size = 50;
 snapshot_interval = 1000;
@@ -24,15 +24,7 @@ use_gpu = true;
 copy_weights = true;
 
 %% building dataset
-% Export to / Import from base workspace to speed up loading when the 
-% script is run multiple times
-try
-    images = evalin('base', 'images');
-    num_images = evalin('base', 'num_images');
-    labels = evalin('base', 'labels');    
-catch
-    [images, num_images, labels] = build_image_dataset(dataset);
-end
+[images, num_images, labels] = build_image_dataset(dataset);
 
 %% init caffe solver       
 cache_dir = fullfile(pwd, 'output', 'CLS_STL_10_cachedir');
@@ -63,11 +55,6 @@ current_pos = 1;
 % helpful for visualizing loss curves
 training_results = [];
 caffe_solver.net.set_phase('train');
-% % intialize real time plotting of training loss
-% figure_handle = figure('NumberTitle', 'off', 'Visible', 'off', ...
-%         'Name', 'Training loss');
-% axes_handle = axes('Parent',figure_handle, 'YGrid', 'on', 'XGrid', 'on');
-% plot_handle=plot(axes_handle, 0, 0);
 
 %% Training loop
 while(iter < max_iters)
@@ -89,13 +76,12 @@ while(iter < max_iters)
     training_results = parse_rst(training_results, rst);
     display(['iter: ' num2str(iter) ' loss = ' num2str(training_results.softmax_loss.data(iter + 1)) ...
         ', accuracy = ' num2str(training_results.accuracy.data(iter + 1))]);
-%     % plot training loss
-%     set(plot_handle, 'YData', training_results.cross_entropy_loss.data', ...
-%         'XData', 1 : (iter + 1));
-%     set(figure_handle, 'Visible', 'on');
     % snapshot
     if (~mod(iter, snapshot_interval)) && (iter ~= 0)
         snapshot(caffe_solver, cache_dir, sprintf('CLS_STL_10_iter_%d.caffemodel', iter));
+    end
+    if (~mod(iter, 7999)) && (iter ~= 0)
+        display(['Test accuracy: ' num2str(mean(training_results.accuracy.data))]);
     end
     iter = caffe_solver.iter();
 end
@@ -125,10 +111,7 @@ function [images, num_images, labels] = build_image_dataset(dataset_mat)
     num_images = size(images, 1);
     images = reshape(images, num_images, 96, 96, 3);
     labels = ld.y';    
-    clear 'ld'
-    assignin('base', 'images', images);
-    assignin('base', 'num_images', num_images);
-    assignin('base', 'labels', labels);
+    clear 'ld'    
 end
 
 function [mini_batch_inds, current_pos] = get_next_mini_batch_inds(inds, ...

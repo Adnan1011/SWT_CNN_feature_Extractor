@@ -77,7 +77,7 @@ layer {
 	}
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 512
+		num_output: 1024
 		weight_filler {
 			type: "xavier"		 
 		}

@@ -1,0 +1,145 @@
+name: "HC_Feats_CAE"
+
+input: "raw_features"
+input_dim: 1
+input_dim: 1
+input_dim: 127
+input_dim: 127
+
+# --------- encoding part ---------
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "raw_features"
+  top: "conv1"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  convolution_param {
+    num_output: 80
+    kernel_size: 5
+    stride: 2
+    weight_filler { type: "xavier" }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+
+layer {
+  name: "sig1en"
+  type: "Sigmoid"
+  bottom: "conv1"
+  top: "conv1"
+}
+
+#layer {
+#  name: "conv2"
+#  type: "Convolution"
+#  bottom: "conv1"
+#  top: "conv2"
+#  param { lr_mult: 1 decay_mult: 1 }
+#  param { lr_mult: 2 decay_mult: 0 }
+#  convolution_param {
+#    num_output: 256
+#    kernel_size: 3
+#    stride: 2
+#    weight_filler { type: "xavier" }
+#    bias_filler { type: "constant" value: 0 }
+#  }
+#}
+#
+#layer {
+#  name: "sig2en"
+#  type: "Sigmoid"
+#  bottom: "conv2"
+#  top: "conv2"
+#}
+#
+## --------- decoding part ---------
+#
+#layer {
+#  name: "deconv2"
+#  type: "Deconvolution"
+#  bottom: "conv2"
+#  top: "deconv2"
+#  param { lr_mult: 1 decay_mult: 1 }
+#  param { lr_mult: 2 decay_mult: 0 }
+#  convolution_param {
+#    num_output: 256
+#    kernel_size: 3
+#    stride: 2
+#    weight_filler { type: "xavier" }
+#    bias_filler { type: "constant" value: 0 }
+#  }
+#}
+#
+#layer {
+#  name: "sig2de"
+#  type: "Sigmoid"
+#  bottom: "deconv2"
+#  top: "deconv2"
+#}
+
+layer {
+  name: "deconv1"
+  type: "Deconvolution"
+  bottom: "conv1"
+  top: "deconv1"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  convolution_param {
+    num_output: 80
+    kernel_size: 5
+    stride: 2
+    weight_filler { type: "xavier" }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+
+layer {
+  name: "sig1de"
+  type: "Sigmoid"
+  bottom: "deconv1"
+  top: "deconv1"
+}
+
+layer {
+  name: "deconv_comb"
+  type: "Deconvolution"
+  bottom: "deconv1"
+  top: "deconv_comb"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  convolution_param {
+    num_output: 1
+    kernel_size: 1
+    stride: 1
+    weight_filler { type: "xavier" }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+
+# --------- calculate loss ---------
+
+layer {
+  name: "cross_entropy_loss"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "deconv_comb"
+  bottom: "raw_features"
+  top: "cross_entropy_loss"
+  loss_weight: 1
+}
+
+layer {
+  name: "deconv_comb_sig"
+  type: "Sigmoid"
+  bottom: "deconv_comb"
+  top: "deconv_comb_sig"
+}
+
+layer {
+  name: "l2_error"
+  type: "EuclideanLoss"
+  bottom: "deconv_comb_sig"
+  bottom: "raw_features"
+  top: "l2_error"
+  loss_weight: 0
+}

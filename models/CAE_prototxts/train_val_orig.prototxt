@@ -1,0 +1,194 @@
+name: "HC_Feats_CAE"
+
+input: "raw_features"
+input_dim: 1
+input_dim: 1
+input_dim: 127
+input_dim: 127
+
+# --------- encoding part ---------
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "raw_features"
+  top: "conv1"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  convolution_param {
+    num_output: 6
+    kernel_size: 7
+    stride: 4
+    weight_filler { type: "xavier" }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+layer {
+  name: "sig1en"
+  type: "Sigmoid"
+  bottom: "conv1"
+  top: "conv1"
+}
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "conv1"
+  top: "conv2"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  convolution_param {
+    num_output: 24
+    kernel_size: 7
+    stride: 4
+    weight_filler { type: "xavier" }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+layer {
+  name: "sig2en"
+  type: "Sigmoid"
+  bottom: "conv2"
+  top: "conv2"
+}
+layer {
+  name: "ip1encode"
+  type: "InnerProduct" 
+  bottom: "conv2"
+  top: "ip1encode"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  inner_product_param {
+    num_output: 1200
+    weight_filler { type: "gaussian" std: 1 sparse: 300 }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+#layer {
+#  name: "sig3en"
+#  type: "Sigmoid"
+#  bottom: "ip1encode"
+#  top: "ip1encode"
+#}
+#layer {
+#  name: "ip2encode"
+#  type: "InnerProduct" 
+#  bottom: "ip1encode"
+#  top: "ip2encode"
+#  param { lr_mult: 1 decay_mult: 1 }
+#  param { lr_mult: 2 decay_mult: 0 }
+#  inner_product_param {
+#    num_output: 10
+#    weight_filler { type: "gaussian" std: 1 sparse: 10 }
+#    bias_filler { type: "constant" value: 0 }
+#  }
+#}
+# --------- decoding part ---------
+layer {
+  name: "ip1decode"
+  type: "InnerProduct" 
+  bottom: "ip1encode"
+  top: "ip1decode"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  inner_product_param {
+    num_output: 1200
+    weight_filler { type: "gaussian" std: 1 sparse: 300 }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+layer {
+  name: "sig3de"
+  type: "Sigmoid"
+  bottom: "ip1decode"
+  top: "ip1decode"
+}
+layer {
+    name: "reshape"
+    type: "Reshape"
+    bottom: "ip1decode"
+    top: "ip1decodesh"
+    reshape_param { shape { dim: 0 dim: 0 dim: 1 dim: 1 } }
+}
+layer {
+  name: "deconv2"
+  type: "Deconvolution"
+  bottom: "ip1decodesh"
+  top: "deconv2"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  convolution_param {
+    num_output: 24
+    kernel_size: 13
+    stride: 1
+    weight_filler { type: "xavier" }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+layer {
+  name: "sig2de"
+  type: "Sigmoid"
+  bottom: "deconv2"
+  top: "deconv2"
+}
+layer {
+  name: "deconv1"
+  type: "Deconvolution"
+  bottom: "deconv2"
+  top: "deconv1"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  convolution_param {
+    num_output: 6
+    kernel_size: 15
+    stride: 4
+    weight_filler { type: "xavier" }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+layer {
+  name: "sig1de"
+  type: "Sigmoid"
+  bottom: "deconv1"
+  top: "deconv1"
+}
+# -- convert back to 784 elements --
+layer {
+  name: "deconv1neur"
+  type: "Deconvolution"
+  bottom: "deconv1"
+  top: "deconv1neur"
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
+  convolution_param {
+    num_output: 1
+    kernel_size: 3
+    stride: 2
+    weight_filler { type: "xavier" }
+    bias_filler { type: "constant" value: 0 }
+  }
+}
+# --------- calculate loss ---------
+
+layer {
+  name: "cross_entropy_loss"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "deconv1neur"
+  bottom: "raw_features"
+  top: "cross_entropy_loss"
+  loss_weight: 1
+}
+
+#layer {
+#  name: "deconv1neursig"
+#  type: "Sigmoid"
+#  bottom: "deconv1neur"
+#  top: "deconv1neursig"
+#}
+
+#layer {
+#  name: "l2_error"
+#  type: "EuclideanLoss"
+#  bottom: "deconv1neursig"
+#  bottom: "raw_features"
+#  top: "l2_error"
+#  loss_weight: 1
+#}

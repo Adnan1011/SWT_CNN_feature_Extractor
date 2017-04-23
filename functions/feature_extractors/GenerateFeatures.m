@@ -1,6 +1,10 @@
-function features = GenerateFeatures(imgPath, option)
+function features = GenerateFeatures(imgPath, option, image_mat)
 
-img = imread(imgPath);
+if ~exist('image_mat', 'var')
+    img = imread(imgPath);
+else
+    img = image_mat;
+end
 % I = rgb2ycbcr(img);
 % features = double(I(:,:,1)) - 110.0;
 % mean_filter = (1.0 / 9.0) * ones(3, 3);

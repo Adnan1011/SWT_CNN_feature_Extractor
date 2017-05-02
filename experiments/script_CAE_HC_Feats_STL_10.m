@@ -15,9 +15,10 @@ active_caffe_mex(auto_select_gpu());
 %% Script settings
 dataset = fullfile(pwd, 'datasets', 'stl10_matlab', 'unlabeled');
 solver_def_file = fullfile(pwd, 'models', 'CAE_STL_10_prototxts', 'solver.prototxt');
-weights_file = fullfile(pwd, 'output', 'CAE_cachedir', 'CAE_SWT_1_layer_80_filts_iter_4655.caffemodel');
+%weights_file = fullfile(pwd, 'output', 'CAE_cachedir', 'CAE_SWT_1_layer_80_filts_iter_4655.caffemodel');
+weights_file = fullfile(pwd, 'output', 'CAE_STL_10_cachedir', 'CAE_final.caffemodel');
 rng_seed = 7;
-batch_size = 50;
+batch_size = 100;
 snapshot_interval = 1000;
 use_gpu = true;
 % Spatial size of input image/feature map

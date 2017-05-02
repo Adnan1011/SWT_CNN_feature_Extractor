@@ -1,9 +1,8 @@
 % Author: Adnan Chaudhry
 % Date created: April 22, 2017
 %% STL 10 classifier
-% Code for training a convolutional autoencoder for determining initial
-% weights for the shallow CNN operating on top of Hand crafted  features
-% For STL 10 dataset
+% Code for training a wavelet + shallow CNN based classifier for STL 10
+% dataset
 function script_CLS_HC_Feats_STL_10()
 clc;
 clear;

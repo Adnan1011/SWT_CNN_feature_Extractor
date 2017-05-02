@@ -12,8 +12,8 @@ layer {
   type: "Convolution"
   bottom: "raw_features"
   top: "conv1"
-  param { lr_mult: 0.01 decay_mult: 0.01 }
-  param { lr_mult: 0.02 decay_mult: 0 }
+  param { lr_mult: 1 decay_mult: 1 }
+  param { lr_mult: 2 decay_mult: 0 }
   convolution_param {
     num_output: 80
     kernel_size: 5

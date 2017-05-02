@@ -12,13 +12,13 @@ active_caffe_mex(opts.gpu_id, opts.caffe_version);
 opts.per_nms_topN           = 6000;
 opts.nms_overlap_thres      = 0.7;
 opts.after_nms_topN         = 300;
-opts.use_gpu                = true;
+opts.use_gpu                = false;
 
 opts.test_scales            = 600;
 
 %% -------------------- INIT_MODEL --------------------
-%model_dir                   = fullfile(pwd, 'output', 'faster_rcnn_final', 'faster_rcnn_VOC0712_vgg_16layers'); %% VGG-16
-model_dir                   = fullfile(pwd, 'output', 'faster_rcnn_final', 'faster_rcnn_VOC2007_ZF'); %% ZF
+model_dir                   = fullfile(pwd, 'output', 'faster_rcnn_final', 'faster_rcnn_VOC0712_vgg_16layers'); %% VGG-16
+%model_dir                   = fullfile(pwd, 'output', 'faster_rcnn_final', 'faster_rcnn_VOC2007_ZF'); %% ZF
 proposal_detection_model    = load_proposal_detection_model(model_dir);
 
 proposal_detection_model.conf_proposal.test_scales = opts.test_scales;
@@ -64,8 +64,8 @@ for j = 1:2 % we warm up 2 times
 end
 
 %% -------------------- TESTING --------------------
-%im_names = {'001763.jpg', '004545.jpg', '000542.jpg', '000456.jpg', '001150.jpg'};
-im_names = {'000021.jpg', '000023.jpg', '000026.jpg', '000648.jpg'};
+im_names = {'001763.jpg', '004545.jpg', '000542.jpg', '000456.jpg', '001150.jpg'};
+%im_names = {'000021.jpg', '000023.jpg', '000026.jpg', '000648.jpg'};
 % these images can be downloaded with fetch_faster_rcnn_final_model.m
 
 running_time = [];

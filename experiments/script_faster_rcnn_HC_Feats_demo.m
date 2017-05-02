@@ -65,16 +65,18 @@ for j = 1:2 % we warm up 2 times
 end
 
 %% -------------------- TESTING --------------------
-%im_names = {'001763.jpg', '004545.jpg', '000542.jpg', '000456.jpg', '001150.jpg'};
-im_dir = strcat(pwd, '/datasets/VOCdevkit2007/train_val_images');
-im_names = dir(fullfile(im_dir, '*.jpg'));
+im_names = {'000026.jpg', '001763.jpg', '004545.jpg', '000542.jpg', '000456.jpg', '001150.jpg'};
+%im_dir = strcat(pwd, '/datasets/VOCdevkit2007/train_val_images');
+%im_names = dir(fullfile(im_dir, '*.jpg'));
 % these images can be downloaded with fetch_faster_rcnn_final_model.m
 
 running_time = [];
 for j = 1:length(im_names)    
     
-    %im = GenerateFeatures(fullfile(pwd, im_names{j}), 'SWT');
-    im = GenerateFeatures(fullfile(im_dir, im_names(j).name), 'SWT');
+    th = tic();
+    im = GenerateFeatures(fullfile(pwd, im_names{j}), 'SWT');
+    t_feat_gen = toc(th);
+    %im = GenerateFeatures(fullfile(im_dir, im_names(j).name), 'SWT');
 %     for i=1:size(im,3)
 %         imshow(im(:,:,i),[])
 %         title(num2str(i));
@@ -125,14 +127,15 @@ for j = 1:length(im_names)
     
     t_detection = toc(th);
     
-    fprintf('%s (%dx%d): time %.3fs (resize+conv+proposal: %.3fs, nms+regionwise: %.3fs)\n', im_names(j).name, ...
+    fprintf('%s (%dx%d): time %.3fs (resize+conv+proposal: %.3fs, nms+regionwise: %.3fs)\n', im_names{j}, ...
         size(im, 2), size(im, 1), t_proposal + t_nms + t_detection, t_proposal, t_nms+t_detection);
-    running_time(end+1) = t_proposal + t_nms + t_detection;
+    display(['proposal time = ', num2str(t_proposal), ' feat gen time = ', num2str(t_feat_gen)]);
+    running_time(end+1) = t_proposal + t_nms + t_detection + t_feat_gen;
     
     % visualize
     classes = proposal_detection_model.classes;
     boxes_cell = cell(length(classes), 1);
-    thres = 0.01;
+    thres = 0.1;
     for i = 1:length(boxes_cell)
         boxes_cell{i} = [boxes(:, (1+(i-1)*4):(i*4)), scores(:, i)];
         boxes_cell{i} = boxes_cell{i}(nms(boxes_cell{i}, 0.3), :);
@@ -141,8 +144,8 @@ for j = 1:length(im_names)
         boxes_cell{i} = boxes_cell{i}(I, :);
     end
     figure(j);
-    %showboxes(imread(fullfile(pwd, im_names{j})), boxes_cell, classes, 'voc');
-    showboxes(imread(fullfile(im_dir, im_names(j).name)), boxes_cell, classes, 'voc');
+    showboxes(imread(fullfile(pwd, im_names{j})), boxes_cell, classes, 'voc');
+    %showboxes(imread(fullfile(im_dir, im_names(j).name)), boxes_cell, classes, 'voc');
     pause(0.1);
 end
 fprintf('mean time: %.3fs\n', mean(running_time));

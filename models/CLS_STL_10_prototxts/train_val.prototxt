@@ -36,7 +36,7 @@ layer {
   param { lr_mult: 1 decay_mult: 1 }
   param { lr_mult: 2 decay_mult: 0 }
   convolution_param {
-    num_output: 80
+    num_output: 40
     kernel_size: 5
     stride: 1
     weight_filler { type: "xavier" }
@@ -71,7 +71,7 @@ layer {
   param { lr_mult: 1 decay_mult: 1 }
   param { lr_mult: 2 decay_mult: 0 }
   convolution_param {
-    num_output: 20
+    num_output: 120
     kernel_size: 3
     stride: 1
     weight_filler { type: "xavier" }
@@ -112,7 +112,7 @@ layer {
 	}
 	type: "InnerProduct"
 	inner_product_param {
-		num_output: 768
+		num_output: 512
 		weight_filler {
 			type: "xavier"		 
 		}

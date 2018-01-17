@@ -8,7 +8,7 @@ MNIST, SVHN
 ## Datasets used for object detection
 Pascal VOC 2007
 
-## Acknowledgments
+## Acknowledgements
 This codebase borrows code from:
 [*Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks*](https://github.com/ShaoqingRen/faster_rcnn)
 By Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun at Microsoft Research

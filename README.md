@@ -3,7 +3,7 @@ Combining handcrafted features like stationary wavelets with a shallow CNN to sp
 This work was done as part of research being carried out at [OLIVES @ Georgia Tech](https://ghassanalregib.com/)
 
 ## Datasets used for classification
-MNIST, SVHN
+STL 10, SVHN
 
 ## Datasets used for object detection
 Pascal VOC 2007
